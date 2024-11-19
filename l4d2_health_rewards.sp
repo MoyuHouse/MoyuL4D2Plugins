@@ -105,6 +105,9 @@ public void OnPluginStart()
 		FormatEx(buffers[0], sizeof(buffers[]), "l4d2_health_Kill_%s", g_sZombieClass[i]);
 		FormatEx(value[0], sizeof(value[]), "%d", g_iKillDefault[i]);
 		FormatEx(bar[0], sizeof(bar[]), "击杀%s的幸存者奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
+		if (i == sizeof(g_iKillDefault) - 1){
+			FormatEx(bar[0], sizeof(bar[]), "击杀%s后幸存者全队奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
+		}
 		g_hKill[i] = CreateConVar(buffers[0], value[0], bar[0], CVAR_FLAGS);
 	}
 
@@ -113,6 +116,9 @@ public void OnPluginStart()
 		FormatEx(buffers[1], sizeof(buffers[]), "l4d2_health_Head_%s", g_sZombieClass[i]);
 		FormatEx(value[1], sizeof(value[]), "%d", g_iHeadDefault[i]);
 		FormatEx(bar[1], sizeof(bar[]), "爆头%s的幸存者奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
+		if (i == sizeof(g_iHeadDefault) - 1){
+			FormatEx(bar[1], sizeof(bar[]), "爆头%s后幸存者全队奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
+		}
 		g_hHead[i] = CreateConVar(buffers[1], value[1], bar[1], CVAR_FLAGS);
 	}
 
