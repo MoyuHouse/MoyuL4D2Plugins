@@ -105,7 +105,8 @@ public void OnPluginStart()
 		FormatEx(buffers[0], sizeof(buffers[]), "l4d2_health_Kill_%s", g_sZombieClass[i]);
 		FormatEx(value[0], sizeof(value[]), "%d", g_iKillDefault[i]);
 		FormatEx(bar[0], sizeof(bar[]), "击杀%s的幸存者奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
-		if (i == sizeof(g_iKillDefault) - 1){
+		if (i == sizeof(g_iKillDefault) - 1)
+		{
 			FormatEx(bar[0], sizeof(bar[]), "击杀%s后幸存者全队奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
 		}
 		g_hKill[i] = CreateConVar(buffers[0], value[0], bar[0], CVAR_FLAGS);
@@ -116,7 +117,8 @@ public void OnPluginStart()
 		FormatEx(buffers[1], sizeof(buffers[]), "l4d2_health_Head_%s", g_sZombieClass[i]);
 		FormatEx(value[1], sizeof(value[]), "%d", g_iHeadDefault[i]);
 		FormatEx(bar[1], sizeof(bar[]), "爆头%s的幸存者奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
-		if (i == sizeof(g_iHeadDefault) - 1){
+		if (i == sizeof(g_iHeadDefault) - 1)
+		{
 			FormatEx(bar[1], sizeof(bar[]), "爆头%s后幸存者全队奖励多少血. 0=禁用(设置小于0等于启用加血但是不显示提示).", g_sZombieName[i]);
 		}
 		g_hHead[i] = CreateConVar(buffers[1], value[1], bar[1], CVAR_FLAGS);
@@ -362,32 +364,18 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 				int iBot	= IsClientIdle(current);
 				if (IsValidClient(current) && GetClientTeam(current) == 2)
 				{
-					if (IsPlayerAlive(current) || GetEntProp(current, Prop_Send, "m_isIncapacitated") == 0)
+					if (IsPlayerAlive(current) || IsPlayerState(current))
 					{
-						if (IsPlayerAlive(current) || IsPlayerState(current))
+						if (SetSurvivorHealth(current, GetRewardHealth(iReward), g_iLimitHealth))
 						{
-							if (SetSurvivorHealth(current, GetRewardHealth(iReward), g_iLimitHealth))
-							{
-								if (iReward > 0)
-									if (iBot != 0)
-									{
-										if (IsValidClient(iBot))
-											PrintToChat(iBot, "\x04[提示]\x05%s了\x03%s\x04,\x05奖励\x03%d\x05点血量.", sType, GetPlayerName(client, iHLZClass), GetRewardHealth(iReward));
-									}
-									else
-										PrintToChat(current, "\x04[提示]\x05%s了\x03%s\x04,\x05奖励\x03%d\x05点血量.", sType, GetPlayerName(client, iHLZClass), GetRewardHealth(iReward));
-							}
-							else
-							{
-								if (iReward > 0)
-									if (iBot != 0)
-									{
-										if (IsValidClient(iBot))
-											PrintToChat(iBot, "\x04[提示]\x05%s了\x03%s\x04,\x05血量已达\x03%d\x05上限.", sType, GetPlayerName(client, iHLZClass), g_iLimitHealth);	   //聊天窗提示.
-									}
-									else
-										PrintToChat(current, "\x04[提示]\x05%s了\x03%s\x04,\x05血量已达\x03%d\x05上限.", sType, GetPlayerName(client, iHLZClass), g_iLimitHealth);	  //聊天窗提示.
-							}
+							if (iReward > 0)
+								if (iBot != 0)
+								{
+									if (IsValidClient(iBot))
+										PrintToChat(iBot, "\x04[提示]\x05%s了\x03%s\x04,\x05奖励\x03%d\x05点血量.", sType, GetPlayerName(client, iHLZClass), GetRewardHealth(iReward));
+								}
+								else
+									PrintToChat(current, "\x04[提示]\x05%s了\x03%s\x04,\x05奖励\x03%d\x05点血量.", sType, GetPlayerName(client, iHLZClass), GetRewardHealth(iReward));
 						}
 						else
 						{
@@ -395,11 +383,22 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 								if (iBot != 0)
 								{
 									if (IsValidClient(iBot))
-										PrintToChat(iBot, "\x04[提示]\x05%s了\x03%s\x04.", sType, GetPlayerName(client, iHLZClass));	//聊天窗提示.
+										PrintToChat(iBot, "\x04[提示]\x05%s了\x03%s\x04,\x05血量已达\x03%d\x05上限.", sType, GetPlayerName(client, iHLZClass), g_iLimitHealth);	   //聊天窗提示.
 								}
 								else
-									PrintToChat(current, "\x04[提示]\x05%s了\x03%s\x04.", sType, GetPlayerName(client, iHLZClass));	   //聊天窗提示.
+									PrintToChat(current, "\x04[提示]\x05%s了\x03%s\x04,\x05血量已达\x03%d\x05上限.", sType, GetPlayerName(client, iHLZClass), g_iLimitHealth);	  //聊天窗提示.
 						}
+					}
+					else
+					{
+						if (iReward > 0)
+							if (iBot != 0)
+							{
+								if (IsValidClient(iBot))
+									PrintToChat(iBot, "\x04[提示]\x05%s了\x03%s\x04.", sType, GetPlayerName(client, iHLZClass));	//聊天窗提示.
+							}
+							else
+								PrintToChat(current, "\x04[提示]\x05%s了\x03%s\x04.", sType, GetPlayerName(client, iHLZClass));	   //聊天窗提示.
 					}
 				}
 			}
