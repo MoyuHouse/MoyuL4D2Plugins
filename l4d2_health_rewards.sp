@@ -358,7 +358,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 		{
 			// 单独处理坦克流程，无论怎么死的都加血
 			// 全队加血
-			for (int i = 0; i < MaxClients; i++)
+			for (int i = 1; i <= MaxClients; i++)
 			{
 				int current = i;
 				int iBot	= IsClientIdle(current);
