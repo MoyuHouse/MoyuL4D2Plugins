@@ -361,9 +361,9 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			for (int i = 1; i <= MaxClients; i++)
 			{
 				int current = i;
-				int iBot	= IsClientIdle(current);
 				if (IsValidClient(current) && GetClientTeam(current) == 2)
 				{
+					int iBot	= IsClientIdle(current);
 					if (IsPlayerAlive(current) || IsPlayerState(current))
 					{
 						if (SetSurvivorHealth(current, GetRewardHealth(iReward), g_iLimitHealth))
