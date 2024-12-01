@@ -74,7 +74,7 @@ int GetAmmo(int client, int iWeapon)
 	int iAmmoType = GetEntProp(iWeapon, Prop_Send, "m_iPrimaryAmmoType");
 	if (iAmmoType != -1)
 	{
-		return GetEntProp(client, Prop_Send, "m_iAmmo", 4, iAmmoType);
+		return GetEntProp(client, Prop_Send, "m_iAmmo", _, iAmmoType);
 	}
 	else
 	{
