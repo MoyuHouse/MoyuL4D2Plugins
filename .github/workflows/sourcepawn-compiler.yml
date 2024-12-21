@@ -25,3 +25,12 @@ jobs:
           input: '${{ github.workspace }}/l4d2_health_rewards.sp'
           output: '${{ github.workspace }}/l4d2_health_rewards.smx'
           includes: '${{ github.workspace }}/include'
+
+      # 编译提示插件
+      - name: Compile L4D2 Hint Rewards
+        uses: SheplyRam/compile-sourcemod-plugin@v1
+        with:
+          sourcemod: '1.12'
+          input: '${{ github.workspace }}/l4d2_reload_hint.sp'
+          output: '${{ github.workspace }}/l4d2_reload_hint.smx'
+          includes: '${{ github.workspace }}/include'
