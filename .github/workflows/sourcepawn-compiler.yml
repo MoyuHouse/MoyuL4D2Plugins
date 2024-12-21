@@ -1,0 +1,27 @@
+name: SP-Compiler
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  Lua-Format-Check:
+    name: SourcePawn Compiler
+    runs-on: ubuntu-latest
+    steps:
+      # 检出分支
+      - name: Checkout Branch
+        uses: actions/checkout@v3
+      
+      # 编译奖血插件
+      - name: Compile L4D2 Health Rewards
+        uses: SheplyRam/compile-sourcemod-plugin@v1
+        with:
+          sourcemod: '1.12'
+          input: '${{ github.workspace }}/l4d2_health_rewards.sp'
+          output: '${{ github.workspace }}/l4d2_health_rewards.smx'
+          includes: '${{ github.workspace }}/include'
