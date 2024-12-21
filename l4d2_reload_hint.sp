@@ -10,9 +10,9 @@
 #define CVAR_FLAGS	   FCVAR_NOTIFY
 #define PLUGIN_VERSION "1.0.0"
 
-int	   g_iEnabled, g_iHintThreshold;
+int	   g_iEnabled, g_iHintThreshold, g_iGrenadeThreshold;
 int	   g_playerHintStatues[64];
-ConVar g_pluginEnabled, g_hintThreshold;
+ConVar g_pluginEnabled, g_hintThreshold, g_grenadeThreshold;
 
 public Plugin myinfo =
 {
@@ -29,9 +29,11 @@ public void OnPluginStart()
 
 	g_pluginEnabled = CreateConVar("l4d2_reload_hint_enabled", "1", "是否启用插件. 1=启用 0=禁用", FCVAR_NOTIFY);
 	g_hintThreshold = CreateConVar("l4d2_reload_hint_threshold", "950", "当前备弹量提示阈值，当备弹量大于等于此值时进行提示", FCVAR_NOTIFY);
+	g_grenadeThreshold = CreateConVar("l4d2_reload_hint_grenade_threshold", "24", "当前榴弹备弹量提示阈值，当备弹量小于等于此值时进行提示", FCVAR_NOTIFY);
 
 	g_pluginEnabled.AddChangeHook(ConVarChangedReload);
 	g_hintThreshold.AddChangeHook(ConVarChangedReload);
+	g_grenadeThreshold.AddChangeHook(ConVarChangedReload);
 
 	AutoExecConfig(true, "l4d2_reload_hint");	 //生成指定文件名的CFG.
 }
@@ -51,10 +53,16 @@ void GetConVarChange()
 {
 	g_iEnabled		 = g_pluginEnabled.IntValue;
 	g_iHintThreshold = g_hintThreshold.IntValue;
+	g_iGrenadeThreshold = g_grenadeThreshold.IntValue;
 	if (g_iHintThreshold < 0)
 	{
 		g_iHintThreshold = 0;
 	}
+	resetAllHintStatues();
+}
+
+void resetAllHintStatues()
+{
 	// 重置所有提示
 	for (int i = 0; i < 64; i++)
 	{
@@ -74,9 +82,24 @@ public void Event_WeaponReloaded(Event event, const char[] name, bool dontBroadc
 	GetClientWeapon(client, weaponName, 32);
 	if (IsValidClient(client) && GetClientTeam(client) == 2)
 	{
+		// 屏蔽手枪和马格南
+		if (StrEqual(weaponName, "weapon_pistol") || StrEqual(weaponName, "weapon_pistol_magnum"))
+		{
+			return;
+		}
 		int currAmmo = GetAmmo(client, weapon);
 		GetWeaponFullName(weaponName, weaponFullName);
-		if ( StrEqual(weaponName, "weapon_grenade_launcher") || currAmmo >= g_iHintThreshold)
+		if (StrEqual(weaponName, "weapon_grenade_launcher"))
+		{
+			// 榴弹流程，不涉及修改低于阈值触发
+			if (currAmmo <= g_iGrenadeThreshold)
+			{
+				PrintToChat(client, "\x04[提示]\x03所用武器: \x03%s\x04, \x05剩余备弹:\x03 %d\x05", weaponFullName, currAmmo);
+			}
+			return;
+		}
+		// 普通武器流程
+		if (currAmmo >= g_iHintThreshold)
 		{
 			PrintToChat(client, "\x04[提示]\x03所用武器: \x03%s\x04, \x05剩余备弹:\x03 %d\x05", weaponFullName, currAmmo);
 			g_playerHintStatues[client] = 1;
