@@ -24,4 +24,4 @@ jobs:
           sourcemod: '1.12'
           input: '${{ github.workspace }}/l4d2_health_rewards.sp'
           output: '${{ github.workspace }}/l4d2_health_rewards.smx'
-          include: '${{ github.workspace }}/include'
+          includes: '${{ github.workspace }}/include'
