@@ -10,8 +10,9 @@
 #define CVAR_FLAGS	   FCVAR_NOTIFY
 #define PLUGIN_VERSION "1.0.0"
 
-int	   g_iEnabled;
-ConVar g_pluginEnabled;
+int	   g_iEnabled, g_iHintThreshold;
+int	   g_playerHintStatues[64];
+ConVar g_pluginEnabled, g_hintThreshold;
 
 public Plugin myinfo =
 {
@@ -27,8 +28,10 @@ public void OnPluginStart()
 	HookEvent("weapon_reload", Event_WeaponReloaded);	 // 武器 Reload
 
 	g_pluginEnabled = CreateConVar("l4d2_reload_hint_enabled", "1", "是否启用插件. 1=启用 0=禁用", FCVAR_NOTIFY);
+	g_hintThreshold = CreateConVar("l4d2_reload_hint_threshold", "950", "当前备弹量提示阈值，当备弹量大于等于此值时进行提示", FCVAR_NOTIFY);
 
 	g_pluginEnabled.AddChangeHook(ConVarChangedReload);
+	g_hintThreshold.AddChangeHook(ConVarChangedReload);
 
 	AutoExecConfig(true, "l4d2_reload_hint");	 //生成指定文件名的CFG.
 }
@@ -46,7 +49,17 @@ public void ConVarChangedReload(ConVar convar, const char[] oldValue, const char
 
 void GetConVarChange()
 {
-	g_iEnabled = g_pluginEnabled.IntValue;
+	g_iEnabled		 = g_pluginEnabled.IntValue;
+	g_iHintThreshold = g_hintThreshold.IntValue;
+	if (g_iHintThreshold < 0)
+	{
+		g_iHintThreshold = 0;
+	}
+	// 重置所有提示
+	for (int i = 0; i < 64; i++)
+	{
+		g_playerHintStatues[i] = 0;
+	}
 }
 
 public void Event_WeaponReloaded(Event event, const char[] name, bool dontBroadcast)
@@ -55,17 +68,100 @@ public void Event_WeaponReloaded(Event event, const char[] name, bool dontBroadc
 	{
 		return;
 	}
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-	char weaponName[32];
+	int	 client = GetClientOfUserId(event.GetInt("userid"));
+	int	 weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	char weaponName[32], weaponFullName[32];
 	GetClientWeapon(client, weaponName, 32);
 	if (IsValidClient(client) && GetClientTeam(client) == 2)
 	{
 		int currAmmo = GetAmmo(client, weapon);
-		if (currAmmo > 0)
+		GetWeaponFullName(weaponName, weaponFullName);
+		if ( StrEqual(weaponName, "weapon_grenade_launcher") || currAmmo >= g_iHintThreshold)
 		{
-			PrintToChat(client, "Current weapon: %s, Reversed Ammo: %d", weaponName,  currAmmo);
+			PrintToChat(client, "\x04[提示]\x03所用武器: \x03%s\x04, \x05剩余备弹:\x03 %d\x05", weaponFullName, currAmmo);
+			g_playerHintStatues[client] = 1;
 		}
+		else {
+			if (g_playerHintStatues[client] < 1)
+			{
+				return;
+			}
+			PrintToChat(client, "\x04[提示]\x03所用武器: \x03%s\x04, \x05剩余备弹:\x03 %d\x04, \x05已低于阈值: \x03%d\x04, \x05后续不再提示", weaponFullName, currAmmo, g_iHintThreshold);
+			g_playerHintStatues[client] = 0;
+		}
+	}
+}
+
+void GetWeaponFullName(const char weaponClassName[32], char weaponName[32])
+{
+	weaponName = weaponClassName;
+	if (StrEqual(weaponClassName, "weapon_smg"))
+	{
+		weaponName = "UZI";
+	}
+	else if (StrEqual(weaponClassName, "weapon_smg_silenced"))
+	{
+		weaponName = "MAC-10";
+	}
+	else if (StrEqual(weaponClassName, "weapon_smg_mp5"))
+	{
+		weaponName = "MP5";
+	}
+	else if (StrEqual(weaponClassName, "weapon_pumpshotgun"))
+	{
+		weaponName = "Pump Shotgun";
+	}
+	else if (StrEqual(weaponClassName, "weapon_shotgun_chrome"))
+	{
+		weaponName = "Chrome Shotgun";
+	}
+	else if (StrEqual(weaponClassName, "weapon_autoshotgun"))
+	{
+		weaponName = "Auto Shotgun";
+	}
+	else if (StrEqual(weaponClassName, "weapon_shotgun_spas"))
+	{
+		weaponName = "SPAS Shotgun";
+	}
+	else if (StrEqual(weaponClassName, "weapon_rifle"))
+	{
+		weaponName = "M4 Rifle";
+	}
+	else if (StrEqual(weaponClassName, "weapon_rifle_desert"))
+	{
+		weaponName = "Desert Rifle";
+	}
+	else if (StrEqual(weaponClassName, "weapon_rifle_ak47"))
+	{
+		weaponName = "AK47";
+	}
+	else if (StrEqual(weaponClassName, "weapon_hunting_rifle"))
+	{
+		weaponName = "Hunting Rifle";
+	}
+	else if (StrEqual(weaponClassName, "weapon_sniper_military"))
+	{
+		weaponName = "Sniper Military";
+	}
+	else if (StrEqual(weaponClassName, "weapon_rifle_sg552"))
+	{
+		weaponName = "SG552";
+	}
+	else if (StrEqual(weaponClassName, "weapon_sniper_awp"))
+	{
+		weaponName = "Sniper AWP";
+	}
+	else if (StrEqual(weaponClassName, "weapon_sniper_scout"))
+	{
+		weaponName = "Sniper Scout";
+	}
+	else if (StrEqual(weaponClassName, "weapon_rifle_m60"))
+	{
+		weaponName = "M60";
+	}
+	else if (StrEqual(weaponClassName, "weapon_grenade_launcher"))
+	{
+		weaponName = "Grenade Launcher";
 	}
 }
 
