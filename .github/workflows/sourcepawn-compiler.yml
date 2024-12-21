@@ -17,6 +17,6 @@ jobs:
         uses: SheplyRam/compile-sourcemod-plugin@v1
         with:
           sourcemod: '1.11'
-          input: 'l4d2_health_rewards.sp'
-          output: 'l4d2_health_rewards.smx'
-          include: 'include'
+          input: './l4d2_health_rewards.sp'
+          output: './l4d2_health_rewards.smx'
+          include: './include'
