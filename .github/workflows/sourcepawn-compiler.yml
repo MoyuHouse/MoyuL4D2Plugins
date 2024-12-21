@@ -27,7 +27,7 @@ jobs:
           includes: '${{ github.workspace }}/include'
 
       # 编译提示插件
-      - name: Compile L4D2 Hint Rewards
+      - name: Compile L4D2 Reload Hint
         uses: SheplyRam/compile-sourcemod-plugin@v1
         with:
           sourcemod: '1.12'
